@@ -1,0 +1,46 @@
+---
+interface Props {
+  activeIndex?: number;
+}
+
+const { activeIndex = 0 } = Astro.props;
+
+const pages = [
+  { href: '/', label: 'Home' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+];
+---
+
+<!-- Indicador de navegación lateral derecho -->
+<aside 
+  class="fixed right-6 md:right-10 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-20"
+  aria-label="Indicador de sección"
+>
+  {pages.map((page, idx) => {
+    const isActive = idx === activeIndex;
+    return (
+      <a
+        href={page.href}
+        aria-label={`Ir a ${page.label}`}
+        title={page.label}
+        class="transition-all duration-300 group relative flex items-center justify-center"
+      >
+        {isActive ? (
+          <!-- Cápsula con degradado activo (naranja a morado) -->
+          <span 
+            transition:name="active-page-pill"
+            class="w-3.5 h-10 rounded-full bg-gradient-to-b from-orange-500 via-rose-500 to-purple-600 shadow-md block" 
+          />
+        ) : (
+          <!-- Punto inactivo -->
+          <span 
+            class="w-3.5 h-3.5 rounded-full bg-neutral-300/80 dark:bg-neutral-700 hover:bg-neutral-400 dark:hover:bg-neutral-500 transition-colors block"
+          />
+        )}
+      </a>
+    );
+  })}
+</aside>
+
