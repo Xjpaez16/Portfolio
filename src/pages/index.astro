@@ -1,11 +1,43 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import PageIndicator from '../components/PageIndicator.astro';
+import FloatingControls from '../components/FloatingControls.astro';
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Jpaez.dev | Juan David Paez Sierra">
+  <!-- Navegación Superior -->
+  <Navbar />
+
+  <!-- Vista Principal Centrada con animación de entrada suave -->
+  <main 
+    class="flex-1 flex flex-col justify-center items-center relative z-10 w-full animate-fade-in"
+    transition:animate="slide"
+  >
+    <Hero />
+  </main>
+
+  <!-- Indicador lateral de secciones -->
+  <PageIndicator activeIndex={0} />
+
+  <!-- Controles inferiores (Idioma y Tema) -->
+  <FloatingControls />
 </Layout>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+</style>
