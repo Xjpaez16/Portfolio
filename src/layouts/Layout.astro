@@ -42,7 +42,7 @@ const {
       document.addEventListener('astro:after-swap', applyTheme);
     </script>
   </head>
-  <body class="bg-[#FFFEFE]">
+  <body class="min-h-screen flex flex-col bg-[#FFFEFE] dark:bg-neutral-950 text-neutral-800 dark:text-neutral-100 transition-colors duration-300 antialiased selection:bg-orange-500/20 selection:text-orange-600 dark:selection:bg-rose-500/30 dark:selection:text-rose-300">
     <slot />
   </body>
 </html>

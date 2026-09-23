@@ -11,7 +11,7 @@
     id="lang-toggle-btn"
     type="button"
     aria-label="Cambiar idioma"
-    class="w-12 h-12 rounded-full border border-neutral-300/80 dark:border-neutral-700/80 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm flex items-center justify-center text-sm font-medium tracking-wide text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 hover:scale-105 active:scale-95 transition-all shadow-sm cursor-pointer"
+    class="w-12 h-12 rounded-full border border-neutral-300/80 dark:border-neutral-700/80 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center text-sm font-semibold tracking-wide text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 hover:scale-105 active:scale-95 transition-all shadow-sm hover:shadow cursor-pointer"
   >
     ES
   </button>
@@ -21,11 +21,11 @@
     id="theme-toggle-btn"
     type="button"
     aria-label="Alternar tema claro/oscuro"
-    class="w-12 h-12 rounded-full border border-neutral-300/80 dark:border-neutral-700/80 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm flex items-center justify-center text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 hover:scale-105 active:scale-95 transition-all shadow-sm cursor-pointer"
+    class="w-12 h-12 rounded-full border border-neutral-300/80 dark:border-neutral-700/80 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center text-neutral-700 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 hover:scale-105 active:scale-95 transition-all shadow-sm hover:shadow cursor-pointer"
   >
     <!-- Icono de Sol (visible en modo claro) -->
     <svg 
-      class="w-5 h-5 block dark:hidden stroke-current" 
+      class="w-5 h-5 block dark:hidden stroke-current text-amber-500" 
       viewBox="0 0 24 24" 
       fill="none" 
       stroke-width="2" 
@@ -45,31 +45,86 @@
 
     <!-- Icono de Luna (visible en modo oscuro) -->
     <svg 
-      class="w-5 h-5 hidden dark:block stroke-current" 
+      class="w-5 h-5 hidden dark:block stroke-current text-amber-300" 
       viewBox="0 0 24 24" 
       fill="none" 
       stroke-width="2" 
       stroke-linecap="round" 
       stroke-linejoin="round"
     >
-      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+      <path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"></path>
     </svg>
   </button>
 </div>
 
 <script>
-  function setupThemeToggle() {
-    const btn = document.getElementById('theme-toggle-btn');
-    if (!btn) return;
+  function setUpControls() {
+    //-- Manejo del cambio de tema con animación View Transition --//
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.onclick = () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          toggleTheme(!isDark);
+          return;
+        }
 
-    btn.onclick = () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    };
+        // Coordenadas del clic para centrar la expansión circular
+        const rect = themeBtn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const endRadius = Math.hypot(
+          Math.max(x, window.innerWidth - x),
+          Math.max(y, window.innerHeight - y)
+        );
+
+        const transition = document.startViewTransition(() => {
+          toggleTheme(!isDark);
+        });
+
+        transition.ready.then(() => {
+          const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`
+          ];
+
+          document.documentElement.animate(
+            { 
+              clipPath: isDark ? [...clipPath].reverse() : clipPath,
+            },
+            {
+              duration: 450,
+              easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+              pseudoElement: isDark ? '::view-transition-old(root)' : '::view-transition-new(root)',
+            }
+          );
+        });
+      };
+    }
+
+    //-- Botón de idioma --//
+    const langBtn = document.getElementById('lang-toggle-btn');
+    if (langBtn) {
+      langBtn.onclick = () => {
+        const currentLang = langBtn.textContent?.trim() || 'ES';
+        const nextLang = currentLang === 'ES' ? 'EN' : 'ES';
+        langBtn.textContent = nextLang;
+      };
+    }
   }
 
-  // Inicializar en primera carga y tras cada transición de Astro
-  setupThemeToggle();
-  document.addEventListener('astro:after-swap', setupThemeToggle);
+  function toggleTheme(setDark: boolean) {
+    if (setDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
+  setUpControls();
+  document.addEventListener('astro:after-swap', setUpControls);
 </script>
 

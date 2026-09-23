@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+/* --- Estilos para la animación circular del Modo Oscuro --- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 999;
+}
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 1;
+}
+.dark::view-transition-new(root) {
+  z-index: 999;
+}
+
+/* --- Transición suave al cambiar de página / idioma --- */
+body {
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+body.page-fading {
+  opacity: 0;
+  filter: blur(4px);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
