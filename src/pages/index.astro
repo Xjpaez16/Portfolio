@@ -10,18 +10,23 @@ import FloatingControls from '../components/FloatingControls.astro';
   <!-- Navegación Superior -->
   <Navbar />
 
-  <!-- Vista Principal Centrada con animación de entrada suave -->
-  <main 
-    class="flex-1 flex flex-col justify-center items-center relative z-10 w-full animate-fade-in"
-    transition:animate="slide"
-  >
-    <Hero />
+  <!-- Contenedor con scroll-snap vertical -->
+  <main class="snap-y snap-mandatory h-screen overflow-y-scroll scroll-smooth">
+    <section id="home" data-section class="snap-start flex items-center justify-center" style="min-height: calc(100dvh - 72px)">
+      <Hero />
+    </section>
+    <section id="projects" data-section class="snap-start min-h-screen flex items-center justify-center">
+      <!-- tu grid de proyectos -->
+    </section>
+    <section id="about"    data-section class="snap-start min-h-screen flex items-center justify-center">
+      <!-- about -->
+    </section>
+    <section id="contact"  data-section class="snap-start min-h-screen flex items-center justify-center">
+      <!-- contact -->
+    </section>
   </main>
 
-  <!-- Indicador lateral de secciones -->
-  <PageIndicator activeIndex={0} />
-
-  <!-- Controles inferiores (Idioma y Tema) -->
+  <PageIndicator />
   <FloatingControls />
 </Layout>
 
