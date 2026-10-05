@@ -1,46 +1,76 @@
+
 ---
-interface Props {
-  activeIndex?: number;
-}
-
-const { activeIndex = 0 } = Astro.props;
-
-const pages = [
-  { href: '/', label: 'Home' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
+const sections = [
+  { id: 'home',     label: 'Home' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'about',    label: 'About' },
+  { id: 'contact',  label: 'Contact' },
 ];
 ---
 
-<!-- Indicador de navegación lateral derecho -->
-<aside 
+<aside
   class="fixed right-6 md:right-10 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-20"
   aria-label="Indicador de sección"
 >
-  {pages.map((page, idx) => {
-    const isActive = idx === activeIndex;
-    return (
-      <a
-        href={page.href}
-        aria-label={`Ir a ${page.label}`}
-        title={page.label}
-        class="transition-all duration-300 group relative flex items-center justify-center"
-      >
-        {isActive ? (
-          <!-- Cápsula con degradado activo (naranja a morado) -->
-          <span 
-            transition:name="active-page-pill"
-            class="w-3.5 h-10 rounded-full bg-linear-to-b from-orange-500 via-rose-500 to-purple-600 shadow-md block" 
-          />
-        ) : (
-          <!-- Punto inactivo -->
-          <span 
-            class="w-3.5 h-3.5 rounded-full bg-neutral-300/80 dark:bg-neutral-700 hover:bg-neutral-400 dark:hover:bg-neutral-500 transition-colors block"
-          />
-        )}
-      </a>
-    );
-  })}
+  {sections.map((s) => (
+    <a
+      href={`#${s.id}`}
+      data-indicator={s.id}
+      aria-label={`Ir a ${s.label}`}
+      title={s.label}
+      class="indicator-dot group flex items-center justify-center"
+    >
+      <span class="dot w-3.5 h-3.5 rounded-full bg-neutral-300 dark:bg-neutral-600 transition-all duration-300 ease-out group-hover:bg-neutral-400"></span>
+    </a>
+  ))}
 </aside>
 
+<style>
+  .indicator-dot.is-active .dot {
+    height: 2.5rem; /* h-10 -> cápsula abierta */
+    background: linear-gradient(
+      to bottom,
+      var(--color-orange-500, #f97316),
+      var(--color-rose-500,   #f43f5e),
+      var(--color-purple-600, #9333ea)
+    );
+  }
+</style>
+
+<script>
+  function setupIndicator() {
+    const dots = document.querySelectorAll('[data-indicator]');
+    const sections = document.querySelectorAll('[data-section]');
+    if (!sections.length) return;
+
+    // 1) IntersectionObserver: marca la sección más visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            dots.forEach((d) =>
+              d.classList.toggle('is-active', d.getAttribute('data-indicator') === id)
+            );
+          }
+        });
+      },
+      { threshold: 0.6 } // 60% visible = activa
+    );
+    sections.forEach((s) => observer.observe(s));
+
+    // 2) Clic en un punto -> scroll suave a la sección
+    dots.forEach((dot) => {
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = dot.getAttribute('data-indicator');
+        if(id){
+          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  }
+
+  setupIndicator();
+  document.addEventListener('astro:after-swap', setupIndicator);
+</script>
